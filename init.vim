@@ -13,7 +13,6 @@ Plugin 'VundleVim/Vundle.vim'  " required
 
  Plugin 'morhetz/gruvbox'
  Plugin 'posva/vim-vue'
- Plugin 'jiangmiao/auto-pairs'
  Plugin 'kien/ctrlp.vim'
  Plugin 'airblade/vim-gitgutter'
  Plugin 'scrooloose/nerdtree'
@@ -25,8 +24,12 @@ Plugin 'VundleVim/Vundle.vim'  " required
  Plugin 'majutsushi/tagbar'
  Plugin 'vim-php/tagbar-phpctags.vim'
  Plugin 'tpope/vim-commentary'
+ Plugin 'tpope/vim-fugitive'
  Plugin 'ludovicchabant/vim-gutentags'
-
+ Plugin 'janko-m/vim-test'
+ Plugin 'tpope/vim-dispatch'
+ Plugin 'tpope/vim-surround'
+ Plugin 'SirVer/ultisnips'
 " ===================
 " end of plugins
 " ===================
@@ -69,18 +72,24 @@ augroup vimrc
 augroup END
 " map the escape from terminal mode
 tnoremap <esc> <c-\><c-n>
-" Hides line background with window change
 " Remove cursorline highlight
 autocmd vimrc InsertEnter,BufLeave * :set nocul
 " Add cursorline highlight
 autocmd vimrc InsertLeave,BufEnter * :set cul
+" Visual mode highlighting
 " Set new vertical splits to the right
 set splitright
 " Set new horizontal splits to the below
 set splitbelow
 " re map nerd tree
 map <C-o> :NERDTreeToggle<CR>
-
+" show hidden files
+let NERDTreeShowHidden=1
+" Relative line number
+set number                     " Show current line number
+set relativenumber             " Show relative line numbers
+" ctrl P buffer 
+:nnoremap <c-b> :CtrlPBuffer<cr>
 " Quick resizing
 nnoremap <silent> + :exe "resize " . (winheight(0) * 3/2)<cr>
 nnoremap <silent> - :exe "resize " . (winheight(0) * 2/3)<cr>
@@ -99,7 +108,6 @@ set wildignore+=*/node_modules/**
 set wildignore+=*/public/**
 
 " LINTER
-
 
 let g:ale_php_phpcs_standard = 'PSR2'
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -163,7 +171,8 @@ let g:lightline = {
 " ==== Comments =====
 nmap <leader>c gcc
 xmap <leader>c gc
-setlocal commentstring=//\ %s
+" Change for // for comments in php
+autocmd FileType php setlocal commentstring=//\ %s
 " ===================
 
 " ====== HARD MODE ========
@@ -172,8 +181,28 @@ setlocal commentstring=//\ %s
  inoremap <Left> <Esc>
  inoremap <Right> <Esc>
 
-" =========SOMETHING==========
-" =======================================================
+" =========TESTING==========
+nmap <silent> t<C-n> :TestNearest<CR>
+nmap <silent> t<C-f> :TestFile<CR>
+nmap <silent> t<C-s> :TestSuite<CR>
+nmap <silent> t<C-l> :TestLast<CR>
+nmap <silent> t<C-g> :TestVisit<CR>
 
-" ======== JS =======================
-" =================== 
+let test#strategy = {
+  \ 'nearest': 'neovim',
+  \ 'file':    'dispatch',
+  \ 'suite':   'dispatch',
+  \}
+" =============Git=============================
+nmap <c-s> :Gstatus<CR>
+nmap <c-c> :Gcommit<CR>
+
+
+" =============SNIPPITREALGOOD=============================
+set runtimepath+=~/.config/nvim/my-snippets/
+let g:UltiSnipsSnippetsDir = "~/.config/nvim/my-snippets/"
+let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsJumpForwardTrigger="<c-b>"
+let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+" inoremap <tab> <c-r>=UltiSnips#ExpandSnippet()<cr>
+
