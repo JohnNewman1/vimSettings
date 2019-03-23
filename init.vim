@@ -1,45 +1,38 @@
 autocmd!
-set nocompatible
-filetype off
-
-set rtp+=~/.config/nvim/bundle/Vundle.vim
-call vundle#begin('~/.config/nvim/bundle')
-
-Plugin 'VundleVim/Vundle.vim'  " required
-
 " ===================
 " my plugins here
 " ===================
-
- Plugin 'morhetz/gruvbox'
- Plugin 'posva/vim-vue'
- Plugin 'kien/ctrlp.vim'
- Plugin 'airblade/vim-gitgutter'
- Plugin 'scrooloose/nerdtree'
- Plugin 'mhinz/vim-grepper'
- Plugin 'w0rp/ale'
- Plugin 'stephpy/vim-php-cs-fixer'
- Plugin 'shawncplus/phpcomplete.vim'
- Plugin 'itchyny/lightline.vim'
- Plugin 'majutsushi/tagbar'
- Plugin 'vim-php/tagbar-phpctags.vim'
- Plugin 'tpope/vim-commentary'
- Plugin 'tpope/vim-fugitive'
- Plugin 'ludovicchabant/vim-gutentags'
- Plugin 'janko-m/vim-test'
- Plugin 'tpope/vim-dispatch'
- Plugin 'tpope/vim-surround'
- Plugin 'SirVer/ultisnips'
+call plug#begin('~/.config/nvim/plugged')
+ Plug 'morhetz/gruvbox'
+ Plug 'posva/vim-vue'
+ Plug 'kien/ctrlp.vim'
+ Plug 'airblade/vim-gitgutter'
+ Plug 'scrooloose/nerdtree'
+ Plug 'mhinz/vim-grepper'
+ Plug 'w0rp/ale'
+ Plug 'stephpy/vim-php-cs-fixer'
+ Plug 'shawncplus/phpcomplete.vim'
+ Plug 'itchyny/lightline.vim'
+ Plug 'majutsushi/tagbar'
+ Plug 'vim-php/tagbar-phpctags.vim'
+ Plug 'tpope/vim-commentary'
+ Plug 'tpope/vim-fugitive'
+ Plug 'ludovicchabant/vim-gutentags'
+ Plug 'janko-m/vim-test'
+ Plug 'tpope/vim-dispatch'
+ Plug 'tpope/vim-surround'
+ Plug 'SirVer/ultisnips'
+ Plug 'honza/vim-snippets'
+ Plug 'sbdchd/neoformat'
+ Plug 'ervandew/supertab'
+ Plug 'artur-shaik/vim-javacomplete2'
+call plug#end()
 " ===================
 " end of plugins
 " ===================
 
 " Change leader to comma
 let g:mapleader = ","
-
-" After all plugins...
-call vundle#end()
-filetype plugin indent on
 
 "colorscheme
 syntax on
@@ -88,7 +81,7 @@ let NERDTreeShowHidden=1
 " Relative line number
 set number                     " Show current line number
 set relativenumber             " Show relative line numbers
-" ctrl P buffer 
+" ctrl P buffer
 :nnoremap <c-b> :CtrlPBuffer<cr>
 " Quick resizing
 nnoremap <silent> + :exe "resize " . (winheight(0) * 3/2)<cr>
@@ -106,6 +99,13 @@ set wildignore=*.git*
 set wildignore+=*/vendor/**
 set wildignore+=*/node_modules/**
 set wildignore+=*/public/**
+
+" Copy to system clipboard
+vnoremap <c-c> "+y
+" Paste from system clipboard
+inoremap <c-v> <Esc>"+
+" treat snake case as words
+set iskeyword-=_
 
 " LINTER
 
@@ -128,14 +128,16 @@ let g:ale_fixers = {
 \   'php': ['php_cs_fixer'],
 \}
 let g:ale_fix_on_save = 1
-
+"JS
+"
+:let b:ale_fixers = {'javascript': ['eslint']}
+:let b:ale_linters = {'javascript': ['eslint']}
 " Vue
 let g:ale_linter_aliases = {'vue': ['vue', 'javascript']}
-" Copy to system clipboard
-vnoremap <c-c> "+y
-" Paste from system clipboard
-inoremap <c-v> <Esc>"+
 """""""""""""""""""""""""""""""""""""""""""""""""""""
+
+""""""" PRETTIER """""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""
 
 " ==== gutentags settings ====
 " Exclude css, html, js files from generating tag files
@@ -171,6 +173,23 @@ let g:lightline = {
 " ==== Comments =====
 nmap <leader>c gcc
 xmap <leader>c gc
+" ==== Zoom Win =====
+" " Zoom / Restore window.
+function! s:ZoomToggle() abort
+    if exists('t:zoomed') && t:zoomed
+        execute t:zoom_winrestcmd
+        let t:zoomed = 0
+    else
+        let t:zoom_winrestcmd = winrestcmd()
+        resize
+        vertical resize
+        let t:zoomed = 1
+    endif
+endfunction
+command! ZoomToggle call s:ZoomToggle()
+
+nnoremap <leader>z :ZoomToggle<CR>
+ " ==============
 " Change for // for comments in php
 autocmd FileType php setlocal commentstring=//\ %s
 " ===================
@@ -197,12 +216,16 @@ let test#strategy = {
 nmap <c-s> :Gstatus<CR>
 nmap <c-c> :Gcommit<CR>
 
-
 " =============SNIPPITREALGOOD=============================
-set runtimepath+=~/.config/nvim/my-snippets/
-let g:UltiSnipsSnippetsDir = "~/.config/nvim/my-snippets/"
+let g:UltiSnipsSnippetDir="~/.config/nvim/my-snippets"
+let g:UltiSnipsSnippetDirectories=["my-snippets"]
 let g:UltiSnipsExpandTrigger="<tab>"
 let g:UltiSnipsJumpForwardTrigger="<c-b>"
 let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+let g:UltiSnipsEditSplit="vertical"
 " inoremap <tab> <c-r>=UltiSnips#ExpandSnippet()<cr>
 
+
+" ==============================JAVA IMPORT ===========================
+autocmd FileType java setlocal omnifunc=javacomplete#Complete
+nmap <c-i> <Plug>(JavaComplete-Imports-AddSmart);
